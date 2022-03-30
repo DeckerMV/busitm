@@ -80,9 +80,6 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener {
                 iniciarMapIntent(listaDatos)
             }
-            .addOnFailureListener { exception ->
-                Log.w("FIREBASE_ERROR", "Error: ", exception)
-            }
     }
 
     private fun iniciarMapIntent(datosCapturados: MutableList<String?>) {
