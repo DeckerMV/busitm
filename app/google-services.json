@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "180586501492",
+    "project_id": "busitm-d2320",
+    "storage_bucket": "busitm-d2320.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:180586501492:android:a7760d539a2d3daf040821",
+        "android_client_info": {
+          "package_name": "com.example.busitm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "180586501492-et824no6u3v4q2ssgbacch058e1jfojo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2Al8Md5X3TWA9s7zs7atxlFfxDvv_HVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "180586501492-et824no6u3v4q2ssgbacch058e1jfojo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
