@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import com.example.busitm.utils.GpsLocator
 import com.example.busitm.utils.LOGIN_COD_RUTA
-import com.example.busitm.utils.ORIGIN
+import com.example.busitm.utils.MAIN
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 
@@ -26,8 +26,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun getIntentString(): String {
         val intent = this.intent //obtenemos el intent (u origen del activity) que lanzó MapActivity
-        if (intent.extras!!.get(ORIGIN) != null)
-            return intent.extras!!.getString(ORIGIN)!!
+        if (intent.extras!!.get(MAIN) != null)
+            return intent.extras!!.getString(MAIN)!!
         else {
             return intent.extras!!.getString(LOGIN_COD_RUTA)!!
         }
@@ -50,6 +50,4 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             map.setMinZoomPreference(15f)
         }
     }
-
-
 }

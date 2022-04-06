@@ -7,6 +7,16 @@
     android:background="#E1BEE7"
     tools:context=".LoginActivity">
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/fg2" />
+
     <EditText
         android:id="@+id/edtNombre"
         style="@style/Widget.AppCompat.AutoCompleteTextView"
@@ -17,7 +27,7 @@
         android:hint="Ingrese usuario"
         android:inputType="textPersonName"
         android:textColorHighlight="@color/purple_200"
-        android:textColorHint="@android:color/holo_purple"
+        android:textColorHint="@color/purple_700"
         android:textColorLink="@color/purple_500"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,13 +42,12 @@
         android:hint="Ingrese contraseña"
         android:inputType="textPassword"
         android:textColorHighlight="@color/purple_200"
-        android:textColorHint="@android:color/holo_purple"
+        android:textColorHint="@color/purple_700"
         android:textColorLink="@color/purple_500"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtNombre" />
-
     <Button
         android:id="@+id/btnIniciar"
         android:layout_width="wrap_content"
@@ -48,7 +57,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtContra" />
-
     <TextView
         android:id="@+id/tvTituloLogin"
         android:layout_width="wrap_content"
@@ -60,7 +68,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="148dp"
@@ -71,5 +78,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnIniciar"
         app:srcCompat="@drawable/ic_user_login_24" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

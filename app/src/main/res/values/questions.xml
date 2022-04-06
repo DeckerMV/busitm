@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preg1">1.	Durante el uso de la aplicación ¿Qué tanta confusión tuviste al momento de intentar navegar entre las pantallas, menús y opciones?</string>
+    <string name="preg2">2.	¿Qué tan acertada estimas que fue la localización de los autobuses en la app?</string>
+    <string name="preg3">3.	¿Cómo clasificarías la app en cuanto a su rendimiento, fluidez y tiempos de respuestas?</string>
+    <string name="preg4">4.	¿Qué tan alto consideras que fue el consumo de batería durante el uso de esta app?</string>
+    <string name="preg5">5.	¿Qué tanto consideras que esta app influyó en la habilidad de llegar con puntualidad al ITM?</string>
+    <string name="preg6">6.	¿Qué tanto consideras que esta app influyó en reducir tu incertidumbre de la llegada del bus?</string>
+    <string name="preg7">7.	¿Consideras que esta app debería limitarse a uso estudiantil o debería estar libre para el público?</string>
+    <string name="preg8">8.	¿Qué tanto consideras que esta app influyó en la habilidad de ejercer mejor tu trabajo como chofer?</string>
+    <string name="preg9">9.	¿Fue correctamente trazada la ruta a seguir en el mapa?</string>
+    <string name="preg10">10. ¿Consideras que esta app debería estar integrada de forma predeterminada en el conjuto de herramientas diaras de todos los choferes de autobus?</string>
+
+</resources>
