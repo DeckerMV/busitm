@@ -19,8 +19,6 @@ class MainActivity : AppCompatActivity() {
         bind.btnReview.setOnClickListener { startReviewActivity() }
     }
 
-
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
