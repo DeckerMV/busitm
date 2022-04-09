@@ -1,6 +1,5 @@
 package com.example.busitm
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -14,10 +13,11 @@ import com.example.busitm.utils.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.firebase.database.*
-import com.google.firebase.database.ktx.getValue
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
 
+    private var isIntentFromMain: Boolean? = null
+    private lateinit var connectedChofer: String
     private lateinit var map: GoogleMap
     private lateinit var markerText: String
     private lateinit var RTDB: DatabaseReference
@@ -30,21 +30,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        isIntentFromMain = intent.extras!!.get(MAIN) != null
         RTDB = FirebaseDatabase.getInstance().reference.child(REFERENCE)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        getLocationUpdates()
-        readChanges()
         markerText = getIntentString()
+        getLocationUpdates()
+    }
+
+    override fun onStop() {
+        Toast.makeText(this, "LOL", Toast.LENGTH_SHORT).show()
+        super.onStop()
     }
 
     private fun getIntentString(): String {
-        val intent = this.intent //obtenemos el intent (u origen del activity) que lanzó MapActivity
-        if (intent.extras!!.get(MAIN) != null)
-            return intent.extras!!.getString(MAIN)!!
-        else {
-            return intent.extras!!.getString(LOGIN_COD_RUTA)!!
+        return when (isIntentFromMain) {
+            true -> intent.extras!!.getString(MAIN)!!
+            false -> {
+                connectedChofer = intent.extras!!.getString(LOGIN_NOMB)!!
+                intent.extras!!.getString(LOGIN_COD_RUTA)!!
+            }
+            else -> "NULL"
         }
-
     }
 
     override fun onMapReady(gm: GoogleMap) {
@@ -60,16 +66,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     }
 
     override fun onLocationChanged(loc: Location) {
-        val testChofer = Chofer(
-            "Erick",
-            "Martinez",
-            "RUT-ERICK",
-            "ErickRuta",
-            loc.latitude,
-            loc.longitude
-        )
-        RTDB.child(testChofer.nombre!!).setValue(testChofer)
+        val latitude = loc.latitude
+        val longitude = loc.longitude
+        if (isIntentFromMain == true) {
+            relocateMarker(latitude, longitude)
+        } else if (isIntentFromMain == false) {
+            val surname = intent.extras!!.get(LOGIN_APE).toString()
+            val cod_route = intent.extras!!.get(LOGIN_COD_RUTA).toString()
+            val name_route = intent.extras!!.get(LOGIN_NOMB_RUTA).toString()
+            val choferConectado = Chofer(
+                connectedChofer, surname, cod_route, name_route, latitude, longitude)
+            RTDB.child(connectedChofer).setValue(choferConectado)
+            readChanges()
+        }
     }
+
+    private fun relocateMarker(latitude: Double, longitude: Double) {
+        val newPosition = LatLng(latitude, longitude)
+        map.moveCamera(CameraUpdateFactory.newLatLng(newPosition))
+        theMarker.position = newPosition
+    }
+
 
     private fun getLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, GPS_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
@@ -93,15 +110,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         RTDB.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()){
-                    val chofer = snapshot.child("Erick").getValue(Chofer::class.java)
-                    val latitude = chofer!!.latitudActual!!
-                    val longitude = chofer.longitudActual!!
-                    val newPosition = LatLng(latitude, longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLng(newPosition))
-                    theMarker.position = newPosition
+                    val chofer = snapshot.child(connectedChofer).getValue(Chofer::class.java)
+                    val latitude = chofer!!.latitud_actual!!
+                    val longitude = chofer.longitud_actual!!
+                    relocateMarker(latitude, longitude)
                 }
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Log.e("TEST", error.message)
             }
