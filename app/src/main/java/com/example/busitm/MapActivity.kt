@@ -1,5 +1,6 @@
 package com.example.busitm
 
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.example.busitm.utils.*
 import com.google.android.gms.maps.*
@@ -37,11 +39,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         getLocationUpdates()
     }
 
-    override fun onStop() {
-        Toast.makeText(this, "LOL", Toast.LENGTH_SHORT).show()
-        super.onStop()
-    }
-
     private fun getIntentString(): String {
         return when (isIntentFromMain) {
             true -> intent.extras!!.getString(MAIN)!!
@@ -50,6 +47,32 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
                 intent.extras!!.getString(LOGIN_COD_RUTA)!!
             }
             else -> "NULL"
+        }
+    }
+
+    override fun onBackPressed() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmación")
+            .setMessage("¿Está seguro que desea cerrar sesión?")
+            .setCancelable(false)
+            .setPositiveButton("Sí") { _, _ ->
+                if (isIntentFromMain == false)
+                    removeChofer()
+                super.onBackPressed()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.cancel()
+            }
+        val cuadroDialogo = builder.create()
+        cuadroDialogo.show()
+    }
+
+    private fun removeChofer() {
+        RTDB.child(connectedChofer).removeValue().addOnCompleteListener {
+            if (it.isSuccessful)
+                Toast.makeText(this, "Sesión cerrada...", Toast.LENGTH_SHORT).show()
+            else
+                Toast.makeText(this, "${it.exception}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -68,17 +91,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     override fun onLocationChanged(loc: Location) {
         val latitude = loc.latitude
         val longitude = loc.longitude
-        if (isIntentFromMain == true) {
-            relocateMarker(latitude, longitude)
-        } else if (isIntentFromMain == false) {
+        if (isIntentFromMain == false) {
             val surname = intent.extras!!.get(LOGIN_APE).toString()
             val cod_route = intent.extras!!.get(LOGIN_COD_RUTA).toString()
             val name_route = intent.extras!!.get(LOGIN_NOMB_RUTA).toString()
             val choferConectado = Chofer(
                 connectedChofer, surname, cod_route, name_route, latitude, longitude)
             RTDB.child(connectedChofer).setValue(choferConectado)
-            readChanges()
         }
+        relocateMarker(latitude, longitude)
     }
 
     private fun relocateMarker(latitude: Double, longitude: Double) {
@@ -121,5 +142,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
             }
         })
     }
+
 
 }
