@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.example.busitm.databinding.ActivityMainBinding
 import com.example.busitm.utils.*
 
@@ -50,7 +51,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startReviewActivity() {
-        val intent = Intent(this, ReviewActivity::class.java)
-        startActivity(intent)
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("¿Quién contestará esta reseña?")
+        builder.setPositiveButton("Usuario") { _, _ ->
+            val intent = Intent(this, ReviewActivity::class.java)
+            intent.putExtra("CALLER", MAIN)
+            startActivity(intent)
+        }
+        builder.setNegativeButton("Chofer") { _, _ ->
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.putExtra("CALLER", MAIN)
+            startActivity(intent)
+        }
+        builder.setNeutralButton("Cancelar") { dialog, _ ->
+            dialog.cancel()
+        }
+        val cuadroDialogo = builder.create()
+        cuadroDialogo.show()
     }
+
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="respuestasNivel">
+        <item>En nada.</item>
+        <item>Muy poco.</item>
+        <item>Indiferente.</item>
+        <item>En un buen nivel.</item>
+        <item>En demasiado.</item>
+    </string-array>
+
+    <string-array name="respuestasSiNo">
+        <item>De acuerdo.</item>
+        <item>En desacuerdo.</item>
+    </string-array>
+</resources>

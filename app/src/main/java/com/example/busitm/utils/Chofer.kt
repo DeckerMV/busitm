@@ -14,4 +14,5 @@ data class Chofer(
                 "CódigoRuta: $codigo_ruta\nNombreRuta: $nombre_ruta" +
                 "\nlatitud: $latitud_actual\nlongitud: $longitud_actual"
     }
+
 }

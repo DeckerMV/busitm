@@ -78,17 +78,31 @@ class LoginActivity : AppCompatActivity() {
                     listaDatos.add(datos?.get(campo) as String?)
             }
             .addOnCompleteListener {
-                iniciarMapIntent(listaDatos)
-            }
-            .addOnFailureListener { exception ->
-                Log.w("FIREBASE_ERROR", "Error: ", exception)
+                val usuario = listaDatos[0]!!
+                RTDB.child(usuario).get().addOnSuccessListener {
+                    if (it.exists())
+                        mostrarError("Este usuario ya tiene una sesión iniciada. Por favor " +
+                                "cierre sesión en su otro dispositivo antes de inciar aquí.")
+                    else
+                        iniciarMapIntent(listaDatos)
+                }
             }
     }
+
     private fun iniciarMapIntent(datosCapturados: MutableList<String?>) {
-        val intent = Intent(this, MapActivity::class.java).apply {
-            for ((i, dato) in datosCapturados.withIndex())
-                putExtra(LISTA_IDS[i], dato)
+        if (intent.extras == null) {
+            val intent = Intent(this, MapActivity::class.java).apply {
+                for ((i, dato) in datosCapturados.withIndex())
+                    putExtra(LISTA_IDS[i], dato)
+            }
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, ReviewActivity::class.java).apply {
+                putExtra("CALLER", LOGIN)
+                for ((i, dato) in datosCapturados.withIndex())
+                    putExtra(LISTA_IDS[i], dato)
+            }
+            startActivity(intent)
         }
-        startActivity(intent)
     }
 }

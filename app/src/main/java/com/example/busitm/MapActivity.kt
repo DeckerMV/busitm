@@ -1,6 +1,5 @@
 package com.example.busitm
 
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -22,9 +21,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     private lateinit var connectedChofer: String
     private lateinit var map: GoogleMap
     private lateinit var markerText: String
-    private lateinit var RTDB: DatabaseReference
     private lateinit var locationManager: LocationManager
-    private lateinit var theMarker: Marker
+    private lateinit var mainMarker: Marker
+    private val retrievedChoferes = mutableMapOf<String, Marker>()
+    private var isFirstTime = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +33,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         isIntentFromMain = intent.extras!!.get(MAIN) != null
-        RTDB = FirebaseDatabase.getInstance().reference.child(REFERENCE)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         markerText = getIntentString()
         getLocationUpdates()
+    }
+
+    override fun onDestroy() {
+        if (isIntentFromMain == false)
+            RTDB.child(connectedChofer).removeValue()
+        super.onDestroy()
     }
 
     private fun getIntentString(): String {
@@ -79,7 +84,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     override fun onMapReady(gm: GoogleMap) {
         val matamorosCoords = LatLng(25.865623572202768, -97.50533393880447)
         map = gm
-        theMarker = map.addMarker(
+        mainMarker = map.addMarker(
             MarkerOptions()
                 .position(matamorosCoords)
                 .title(markerText))!!
@@ -91,6 +96,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     override fun onLocationChanged(loc: Location) {
         val latitude = loc.latitude
         val longitude = loc.longitude
+        relocateMainMarker(latitude, longitude)
         if (isIntentFromMain == false) {
             val surname = intent.extras!!.get(LOGIN_APE).toString()
             val cod_route = intent.extras!!.get(LOGIN_COD_RUTA).toString()
@@ -98,16 +104,35 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
             val choferConectado = Chofer(
                 connectedChofer, surname, cod_route, name_route, latitude, longitude)
             RTDB.child(connectedChofer).setValue(choferConectado)
+        } else {
+            if (isFirstTime)
+                getAllLoggedChoferes()
         }
-        relocateMarker(latitude, longitude)
     }
 
-    private fun relocateMarker(latitude: Double, longitude: Double) {
+    private fun getAllLoggedChoferes() {
+        RTDB.get().addOnCompleteListener {
+            if (it.isSuccessful){
+                if (it.result.exists()) {
+                    val raizChoferes = it.result.value as HashMap<*, *>
+                    val hashMapChoferes = raizChoferes.values
+                    for (datosChoferes in hashMapChoferes) {
+                        val datos = datosChoferes as HashMap<*, *>
+                        createNewChoferMarker(datos)
+                    }
+                }
+
+            } else
+                Log.e("TEST", it.exception!!.message!!)
+            readChanges()
+        }
+    }
+
+    private fun relocateMainMarker(latitude: Double, longitude: Double) {
         val newPosition = LatLng(latitude, longitude)
         map.moveCamera(CameraUpdateFactory.newLatLng(newPosition))
-        theMarker.position = newPosition
+        mainMarker.position = newPosition
     }
-
 
     private fun getLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, GPS_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
@@ -131,10 +156,37 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         RTDB.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()){
-                    val chofer = snapshot.child(connectedChofer).getValue(Chofer::class.java)
-                    val latitude = chofer!!.latitud_actual!!
-                    val longitude = chofer.longitud_actual!!
-                    relocateMarker(latitude, longitude)
+                    if (!isFirstTime) {
+                        val raizChoferes = snapshot.value as HashMap<*, *>
+                        val choferesConectados = raizChoferes.keys
+                        val keysRetrievedChoferes = retrievedChoferes.keys
+                        if (choferesConectados.containsAll(keysRetrievedChoferes)) {
+                            val hashMapChoferes = raizChoferes.values
+                            if (choferesConectados.size > keysRetrievedChoferes.size) {
+                                for (datosChoferes in hashMapChoferes) {
+                                    val datos = datosChoferes as HashMap<*, *>
+                                    val nombre = datos.get("nombre") as String
+                                    if (retrievedChoferes.containsKey(nombre))
+                                        updateMarkerPosition(datos)
+                                    else
+                                        createNewChoferMarker(datos)
+                                }
+                            } else {
+                                for (datosChoferes in hashMapChoferes) {
+                                    updateMarkerPosition(datosChoferes as HashMap<*, *>)
+                                }
+                            }
+                        } else {
+                            for (chofer in keysRetrievedChoferes) {
+                                if (!choferesConectados.contains(chofer)) {
+                                    retrievedChoferes[chofer]!!.remove()
+                                    retrievedChoferes.remove(chofer)
+                                    break
+                                }
+                            }
+                        }
+                    } else
+                        isFirstTime = false
                 }
             }
             override fun onCancelled(error: DatabaseError) {
@@ -143,5 +195,25 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         })
     }
 
+    private fun updateMarkerPosition(newData: HashMap<*, *>) {
+        val nombre = newData.get("nombre") as String
+        val latitude = newData.get("latitud_actual") as Double
+        val longitude = newData.get("longitud_actual") as Double
+        val newPosition = LatLng(latitude, longitude)
+        retrievedChoferes[nombre]!!.position = newPosition
+    }
+
+    private fun createNewChoferMarker(datos: HashMap<*, *>) {
+        val id = datos.get("nombre") as String
+        val codRuta = datos.get("codigo_ruta") as String
+        val latitude = datos.get("latitud_actual") as Double
+        val longitude = datos.get("longitud_actual") as Double
+        val position = LatLng(latitude, longitude)
+        val theMarker = map.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title(codRuta))!!
+        retrievedChoferes[id] = theMarker
+    }
 
 }
