@@ -12,7 +12,7 @@
     </string-array>
 
     <string-array name="preguntasChofer">
-        <item>8. ¿Qué tanto consideras que esta app influyó en la habilidad de ejercer mejor tu trabajo como chofer?</item>
-        <item>9. ¿Consideras que esta app debería estar integrada de forma predeterminada en el conjuto de herramientas diaras de todos los choferes de autobus?</item>
+        <item>5. ¿Qué tanto consideras que esta app influyó en la habilidad de ejercer mejor tu trabajo como chofer?</item>
+        <item>6. ¿Consideras que esta app debería estar integrada de forma predeterminada en el conjuto de herramientas diaras de todos los choferes de autobus?</item>
     </string-array>
 </resources>

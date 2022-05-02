@@ -89,8 +89,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
                 .position(matamorosCoords)
                 .title(markerText))!!
             map.moveCamera(CameraUpdateFactory.newLatLng(matamorosCoords))
-            map.setMaxZoomPreference(20f)
-            map.setMinZoomPreference(15f)
+            map.setMinZoomPreference(10.5f)
     }
 
     override fun onLocationChanged(loc: Location) {
@@ -121,7 +120,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
                         createNewChoferMarker(datos)
                     }
                 }
-
             } else
                 Log.e("TEST", it.exception!!.message!!)
             readChanges()

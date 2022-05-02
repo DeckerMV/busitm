@@ -3,17 +3,22 @@ package com.example.busitm
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
-import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import com.example.busitm.databinding.ActivityReviewBinding
+import com.example.busitm.utils.COLLECTION_REVIEW
 import com.example.busitm.utils.LOGIN
 import com.example.busitm.utils.MAIN
-import org.w3c.dom.Text
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class ReviewActivity : AppCompatActivity() {
     private lateinit var bind: ActivityReviewBinding
+    private lateinit var BD: FirebaseFirestore
     private lateinit var preguntasUsuario: Array<String?>
     private lateinit var preguntasChofer: Array<String?>
     private lateinit var respuestasNivel: Array<String?>
@@ -59,8 +64,7 @@ class ReviewActivity : AppCompatActivity() {
                 tvPregunta.setTextColor(ContextCompat.getColor(this, R.color.purple_500))
                 tvPregunta.setTypeface(null, Typeface.BOLD)
                 bind.SVLL.addView(tvPregunta)
-                var respuestas: Array<String?>? = null
-                respuestas = if (pregunta!!.startsWith("8"))
+                var respuestas: Array<String?> = if (pregunta!!.startsWith("8"))
                     respuestasNivel
                 else
                     respuestasSiNo
@@ -76,5 +80,44 @@ class ReviewActivity : AppCompatActivity() {
         val btnEnviar = Button(this)
         btnEnviar.text = "ENVIAR"
         bind.SVLL.addView(btnEnviar)
+        btnEnviar.setOnClickListener { cargarRespuestas() }
+    }
+
+    private fun cargarRespuestas() {
+        val respuestas = mutableListOf<String>()
+        val childrenViews = bind.SVLL.children
+        for (child in childrenViews) {
+            if (child is RadioGroup) {
+                if (child.checkedRadioButtonId == -1) {
+                    Toast.makeText(this, "Por favor, conteste todas las preguntas.",
+                        Toast.LENGTH_SHORT).show()
+                    respuestas.clear()
+                    break
+                } else {
+                    val checked = findViewById<RadioButton>(child.checkedRadioButtonId)
+                    respuestas.add(checked.text.toString())
+                }
+            }
+        }
+        if (respuestas.isEmpty()) {
+            return
+        } else {
+            subirRespuestas(respuestas)
+        }
+    }
+
+    private fun subirRespuestas(respuestas: List<String>) {
+        BD = Firebase.firestore
+        val review = hashMapOf<String, String>()
+        for ((i, res) in respuestas.withIndex()) { review["${i + 1}"] = res }
+        BD.collection(COLLECTION_REVIEW)
+            .add(review)
+            .addOnSuccessListener {
+                Toast.makeText(this, "¡Gracias por contestar!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Log.e("ERROR", it.message!!)
+            }
     }
 }

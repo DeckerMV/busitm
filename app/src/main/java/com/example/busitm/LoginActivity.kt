@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.busitm.databinding.ActivityLoginBinding
@@ -69,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
     }
     private fun obtenerDatosChofer() {
         val listaDatos = mutableListOf<String?>()
-        BD.collection(COLLECTION)
+        BD.collection(COLLECTION_CHOFERES)
             .document(user)
             .get()
             .addOnCompleteListener {
